@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Test overview</title>
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css" />
+    <style type="text/css">
+    {{ report.style }}
+    
+    #progressbar { border: 1px solid black; }
+    #progressbar .innerbar { height: 3em; display: inline-block; }
+    .passed { background-color: #46A546; }
+    .skipped { background-color: #BFBFBF; }
+    .failed { background-color: #C43C35; }
+
+    .row { margin-top: 4em; }
+    .row h2 { margin-bottom: 1em; }
+
+    .test .header { font-size: 2em; margin-bottom: 0.5em; }
+    .test .label { position: relative; width: 5em; display: inline-block; top: -4px; text-align: center; margin-right: 1em; }
+    .test .file { font-style: italic; }
+    .test { margin-bottom: 3em; }
+    .test .assignee { font-size: 0.8em; }
+    .test .traceback { background-color: #FCF5F5; }
+
+    .hidden { display: none; }
+    </style>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+      var counts = {{ report.counts_json }};
+      var bar = $('#progressbar');
+      function addBar(cls, value) {
+        if (value <= 0) {
+          return;
+        }
+        var fraction = (value / counts.total * 100).toFixed(1);
+        var inner = $('<div>').addClass('innerbar').addClass(cls);
+        inner.css('width', fraction + '%').html('&nbsp;');
+        return inner.appendTo(bar);
+      }
+      addBar('passed', counts.passed);
+      addBar('failed', counts.failed);
+      addBar('skipped', counts.skipped);
+    }); 
+    $('.test .doc').live('click', function(e) {
+      $(this).hide();
+      $(this).parents('.test').find('.source').show();
+    });
+    $('.test .source').live('click', function(e) {
+      $(this).hide();
+      $(this).parents('.test').find('.doc').show();
+    });
+    </script>
+  </head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="container">
+      <h3><a href="#">Test overview</a></h3>
+      <ul class="nav">
+        <li><a href="#progress">Progress</a></li>
+        <li><a href="#details">Test details</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <h2 name="progress">Progress</h2>
+    <div id="progressbar" class="span12 offset2"></div>
+  </div>
+
+  <div class="row">
+    <h2 name="details">Test details</h2>
+    <ul class="unstyled tests">
+    {% for test in report.sorted_tests %}
+      <li class="test">
+      <div class="header">
+        <span class="label {{ test.status }}">{{ test.status }}</span>
+        <span class="name">{{ test.task.name }}</span>
+        {% if test.task.options.assignee %}
+        <span class="assignee">({{ test.task.options.assignee }})</span>
+        {% endif %}
+      </div>
+      <pre class="doc">{{ test.doc }}</pre>
+      <div class="hidden source">
+        <span class="file">{{ test.source_file }}</span>
+        {{ test.decorated_source }}
+      </div>
+      {% if test.traceback %}
+        <pre class="traceback">{{ test.traceback }}</pre>
+      {% endif %}
+      </li>
+    {% endfor %}
+    </ul>
+  </div>
+</div>
+
+</body>
+</html>
