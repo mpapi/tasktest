@@ -13,7 +13,7 @@ overview page.
 
     pip -E env -r dependencies.txt
     source env/bin/activate
-    python spectest.py sample
+    python tasktest.py sample
     $BROWSER overview.html
 
 
